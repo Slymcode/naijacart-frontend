@@ -31,7 +31,7 @@ export function Hero() {
               <Button
                 variant="outline"
                 size="lg"
-                className="text-white bg-slate-900/90 border-white/20 hover:border-white hover:bg-white/10"
+                className="text-white bg-slate-900/90 border-white/20 hover:border-white hover:bg-slate-800"
                 onClick={() => (window.location.href = "/affiliate/register")}
               >
                 Become Affiliate
@@ -40,31 +40,35 @@ export function Hero() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
-            <Card className="bg-slate-800/95 border-slate-600 ring-1 ring-white/20 shadow-none">
+            <Card className="bg-slate-900/90 border-white/20 ring-1 ring-white/20 shadow-none hover:border-white hover:bg-slate-800/90 transition-colors">
               <CardContent className="pt-6">
                 <ShoppingCart className="mb-4 text-sky-300" size={32} />
-                <CardTitle className="text-slate-100">Easy Shopping</CardTitle>
-                <p className="mt-2 text-sm text-slate-200">
+                <CardTitle className="text-white font-bold">
+                  Easy Shopping
+                </CardTitle>
+                <p className="mt-2 text-sm text-white">
                   Smooth checkout and trusted payment processing.
                 </p>
               </CardContent>
             </Card>
-            <Card className="bg-slate-800/95 border-slate-600 ring-1 ring-white/20 shadow-none">
+            <Card className="bg-slate-900/90 border-white/20 ring-1 ring-white/20 shadow-none hover:border-white hover:bg-slate-800/90 transition-colors">
               <CardContent className="pt-6">
                 <Truck className="mb-4 text-sky-300" size={32} />
-                <CardTitle className="text-slate-100">Fast Delivery</CardTitle>
-                <p className="mt-2 text-sm text-slate-200">
+                <CardTitle className="text-white font-bold">
+                  Fast Delivery
+                </CardTitle>
+                <p className="mt-2 text-sm text-white">
                   Local shipping tailored for Nigerian customers.
                 </p>
               </CardContent>
             </Card>
-            <Card className="sm:col-span-2 bg-slate-800/95 border-slate-600 ring-1 ring-white/20 shadow-none">
+            <Card className="sm:col-span-2 bg-slate-900/90 border-white/20 ring-1 ring-white/20 shadow-none hover:border-white hover:bg-slate-800/90 transition-colors">
               <CardContent className="pt-6">
                 <Shield className="mb-4 text-sky-300" size={32} />
-                <CardTitle className="text-slate-100">
+                <CardTitle className="text-white font-bold">
                   Secure Payments
                 </CardTitle>
-                <p className="mt-2 text-sm text-slate-200">
+                <p className="mt-2 text-sm text-white">
                   Built-in payments and affiliate earnings powered by Paystack.
                 </p>
               </CardContent>
