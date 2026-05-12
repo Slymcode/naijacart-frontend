@@ -289,48 +289,49 @@ export default function ProductDetail() {
             )}
           </div>
 
-          <Card className="rounded-[28px] border-sky-200 bg-sky-50 shadow-none">
-            <CardContent>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm font-semibold text-slate-700">
-                    Earn Commission
-                  </p>
-                  <p className="text-sm text-slate-600">
-                    Share this product and earn 10% commission on each sale.
-                  </p>
-                </div>
-                {!affiliateLink ? (
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={handleGenerateAffiliateLink}
-                  >
-                    {isAuthenticated
-                      ? "Generate Affiliate Link"
-                      : "Sign in to Earn"}
-                  </Button>
-                ) : (
-                  <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
-                    <Input
-                      type="text"
-                      value={affiliateLink}
-                      readOnly
-                      className="rounded-2xl"
-                    />
-                    <Button
-                      variant="secondary"
-                      onClick={copyToClipboard}
-                      className="gap-2"
-                    >
-                      <Copy size={16} />
-                      {copySuccess ? "Copied!" : "Copy"}
-                    </Button>
+          {isAuthenticated && user?.role === "AFFILIATE" && (
+            <Card className="rounded-[28px] border-sky-200 bg-sky-50 shadow-none">
+              <CardContent>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-700">
+                      Earn Commission
+                    </p>
+                    <p className="text-sm text-slate-600">
+                      Share this product and earn 10% commission on each sale.
+                    </p>
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+
+                  {!affiliateLink ? (
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={handleGenerateAffiliateLink}
+                    >
+                      Generate Affiliate Link
+                    </Button>
+                  ) : (
+                    <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+                      <Input
+                        type="text"
+                        value={affiliateLink}
+                        readOnly
+                        className="rounded-2xl"
+                      />
+                      <Button
+                        variant="secondary"
+                        onClick={copyToClipboard}
+                        className="gap-2"
+                      >
+                        <Copy size={16} />
+                        {copySuccess ? "Copied!" : "Copy"}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           <div ref={reviewSectionRef}>
             <Card className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-card">
