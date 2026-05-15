@@ -56,6 +56,7 @@ export interface Product {
   isFeatured: boolean;
   productMetrics?: ProductMetric;
   reviews?: Review[];
+  commissionPercentage?: number;
 }
 
 export interface CartItem {

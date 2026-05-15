@@ -12,7 +12,9 @@ export default function AffiliateRegister() {
     if (!hasCheckedAuth) return;
 
     if (!isAuthenticated) {
-      window.location.href = "/signin";
+      window.location.href =
+        "/signin?redirect=" +
+        encodeURIComponent(window.location.pathname + window.location.search);
       return;
     }
 
@@ -68,7 +70,9 @@ export default function AffiliateRegister() {
                 Why Become an Affiliate?
               </h3>
               <ul className="text-sm text-blue-800 space-y-1">
-                <li>✓ Earn 10% commission on every sale</li>
+                <li>
+                  ✓ Earn commission on every sale, based on product settings
+                </li>
                 <li>✓ Get unique affiliate links for tracking</li>
                 <li>✓ Real-time dashboard to monitor earnings</li>
                 <li>✓ Withdraw funds directly to your bank account</li>

@@ -1,7 +1,15 @@
 import { useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+  useSearchParams,
+} from "react-router-dom";
 import { useAuthStore } from "@/stores/auth";
+import { useCartStore } from "@/stores/cart";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import Home from "@/pages/Home";
 import SignIn from "@/pages/auth/SignIn";
 import SignUp from "@/pages/auth/SignUp";
@@ -20,6 +28,21 @@ import "./App.css";
 import PaymentCallback from "./pages/PaymentCallback";
 
 function App() {
+  function ReferralTracker() {
+    const location = useLocation();
+    const [searchParams] = useSearchParams();
+    const setAffiliateCode = useCartStore((state) => state.setAffiliateCode);
+
+    useEffect(() => {
+      const refCode = searchParams.get("ref");
+      if (refCode) {
+        setAffiliateCode(refCode);
+      }
+    }, [location.search, searchParams, setAffiliateCode]);
+
+    return null;
+  }
+
   const { checkAuth } = useAuthStore();
 
   useEffect(() => {
@@ -28,7 +51,8 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
+      <ReferralTracker />
+      <div className="min-h-screen flex flex-col bg-gray-50">
         <Header />
         <main className="flex-1">
           <Routes>
@@ -52,6 +76,7 @@ function App() {
             <Route path="/admin/*" element={<AdminDashboard />} />
           </Routes>
         </main>
+        <Footer />
       </div>
     </Router>
   );

@@ -20,20 +20,38 @@ export default function AdminCreateProduct() {
     stock: "",
     category: "",
     comparePrice: "",
+    commissionPercentage: "",
     images: "",
     tags: "",
     isFeatured: false,
   });
+
+  const generateSlug = (text: string) =>
+    text
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+
+  const handleChange = (field: string, value: string | boolean) => {
+    if (field === "name" && typeof value === "string") {
+      setFormData((prev) => ({
+        ...prev,
+        name: value,
+        slug: generateSlug(value),
+      }));
+      return;
+    }
+
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   useEffect(() => {
     if (hasCheckedAuth && (!isAuthenticated || user?.role !== "ADMIN")) {
       navigate("/");
     }
   }, [hasCheckedAuth, isAuthenticated, user, navigate]);
-
-  const handleChange = (field: string, value: string | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -51,6 +69,9 @@ export default function AdminCreateProduct() {
         category: formData.category.trim(),
         comparePrice: formData.comparePrice
           ? Number(formData.comparePrice)
+          : undefined,
+        commissionPercentage: formData.commissionPercentage
+          ? Number(formData.commissionPercentage)
           : undefined,
         images: formData.images
           .split(",")
@@ -74,6 +95,7 @@ export default function AdminCreateProduct() {
         stock: "",
         category: "",
         comparePrice: "",
+        commissionPercentage: "",
         images: "",
         tags: "",
         isFeatured: false,
@@ -189,6 +211,28 @@ export default function AdminCreateProduct() {
                     onChange={(e) => handleChange("stock", e.target.value)}
                     placeholder="25"
                   />
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Commission Percentage
+                  </label>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    value={formData.commissionPercentage}
+                    onChange={(e) =>
+                      handleChange("commissionPercentage", e.target.value)
+                    }
+                    placeholder="10"
+                  />
+                  <p className="mt-2 text-xs text-slate-500">
+                    Enter the affiliate commission percentage for this product.
+                  </p>
                 </div>
               </div>
 

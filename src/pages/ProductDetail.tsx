@@ -117,7 +117,9 @@ export default function ProductDetail() {
 
   const handleGenerateAffiliateLink = async () => {
     if (!product || !isAuthenticated) {
-      window.location.href = "/signin";
+      window.location.href =
+        "/signin?redirect=" +
+        encodeURIComponent(window.location.pathname + window.location.search);
       return;
     }
 
@@ -194,26 +196,28 @@ export default function ProductDetail() {
             />
           </motion.div>
           <CardContent>
-            <div className="grid gap-3 sm:grid-cols-3">
-              {product.images.slice(0, 4).map((image, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => setActiveImageIndex(idx)}
-                  className={`overflow-hidden rounded-3xl border transition duration-200 ${
-                    activeImageIndex === idx
-                      ? "border-blue-600 ring-1 ring-blue-200"
-                      : "border-slate-200"
-                  }`}
-                >
-                  <img
-                    src={image || "/placeholder.jpg"}
-                    alt={`${product.name} ${idx}`}
-                    className="h-24 w-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
+            {product.images.length > 1 && (
+              <div className="grid gap-3 sm:grid-cols-3">
+                {product.images.slice(0, 4).map((image, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setActiveImageIndex(idx)}
+                    className={`overflow-hidden rounded-3xl border transition duration-200 ${
+                      activeImageIndex === idx
+                        ? "border-blue-600 ring-1 ring-blue-200"
+                        : "border-slate-200"
+                    }`}
+                  >
+                    <img
+                      src={image || "/placeholder.jpg"}
+                      alt={`${product.name} ${idx}`}
+                      className="h-24 w-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -289,49 +293,67 @@ export default function ProductDetail() {
             )}
           </div>
 
-          {isAuthenticated && user?.role === "AFFILIATE" && (
-            <Card className="rounded-[28px] border-sky-200 bg-sky-50 shadow-none">
-              <CardContent>
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-sm font-semibold text-slate-700">
-                      Earn Commission
-                    </p>
-                    <p className="text-sm text-slate-600">
-                      Share this product and earn 10% commission on each sale.
-                    </p>
-                  </div>
-
-                  {!affiliateLink ? (
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={handleGenerateAffiliateLink}
-                    >
-                      Generate Affiliate Link
-                    </Button>
-                  ) : (
-                    <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
-                      <Input
-                        type="text"
-                        value={affiliateLink}
-                        readOnly
-                        className="rounded-2xl"
-                      />
-                      <Button
-                        variant="secondary"
-                        onClick={copyToClipboard}
-                        className="gap-2"
-                      >
-                        <Copy size={16} />
-                        {copySuccess ? "Copied!" : "Copy"}
-                      </Button>
+          {isAuthenticated &&
+            user?.role === "AFFILIATE" &&
+            product.commissionPercentage !== undefined && (
+              <Card className="rounded-[28px] border-sky-200 bg-sky-50 shadow-none">
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-700">
+                        Earn Commission
+                      </p>
+                      <p className="text-sm text-slate-600">
+                        Share this product and earn
+                        <span className="font-semibold text-slate-900 mx-1">
+                          {product.commissionPercentage}%
+                        </span>
+                        commission on the product price.
+                      </p>
+                      <p className="text-sm text-slate-500">
+                        Estimated payout per sale:
+                        <span className="font-semibold text-slate-900 ml-1">
+                          {formatCurrency(
+                            product.price *
+                              (product.commissionPercentage / 100),
+                          )}
+                        </span>
+                      </p>
+                      <p className="text-sm text-slate-500">
+                        Commission is calculated from the product price only.
+                      </p>
                     </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+
+                    {!affiliateLink ? (
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={handleGenerateAffiliateLink}
+                      >
+                        Generate Affiliate Link
+                      </Button>
+                    ) : (
+                      <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+                        <Input
+                          type="text"
+                          value={affiliateLink}
+                          readOnly
+                          className="rounded-2xl"
+                        />
+                        <Button
+                          variant="secondary"
+                          onClick={copyToClipboard}
+                          className="gap-2"
+                        >
+                          <Copy size={16} />
+                          {copySuccess ? "Copied!" : "Copy"}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
           <div ref={reviewSectionRef}>
             <Card className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-card">

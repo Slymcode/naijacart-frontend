@@ -19,7 +19,9 @@ export default function OrderDetail() {
 
   useEffect(() => {
     if (hasCheckedAuth && !isAuthenticated) {
-      window.location.href = "/signin";
+      window.location.href =
+        "/signin?redirect=" +
+        encodeURIComponent(window.location.pathname + window.location.search);
     }
   }, [hasCheckedAuth, isAuthenticated]);
 

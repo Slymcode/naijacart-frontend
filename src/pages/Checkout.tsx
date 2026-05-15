@@ -29,9 +29,9 @@ export default function Checkout() {
     (sum: number, item) => sum + item.price * item.quantity,
     0,
   );
-  const shippingFee = 5000;
-  const tax = subtotal * 0.1;
-  const total = subtotal + shippingFee + tax;
+  const shippingFee = 3500;
+  const tax = 0;
+  const total = subtotal + shippingFee;
 
   if (!hasCheckedAuth || isLoading) {
     return (
@@ -61,7 +61,15 @@ export default function Checkout() {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
         <h1 className="text-3xl font-bold mb-4">Sign in to checkout</h1>
-        <Button onClick={() => (window.location.href = "/signin")}>
+        <Button
+          onClick={() =>
+            (window.location.href =
+              "/signin?redirect=" +
+              encodeURIComponent(
+                window.location.pathname + window.location.search,
+              ))
+          }
+        >
           Sign In
         </Button>
       </div>
@@ -239,10 +247,6 @@ export default function Checkout() {
                     <span className="font-medium">
                       {formatCurrency(shippingFee)}
                     </span>
-                  </div>
-                  <div className="flex justify-between text-slate-600">
-                    <span>Tax (10%)</span>
-                    <span className="font-medium">{formatCurrency(tax)}</span>
                   </div>
                 </div>
                 {affiliateCode && (

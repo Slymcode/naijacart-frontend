@@ -42,7 +42,9 @@ export default function Profile() {
 
   useEffect(() => {
     if (hasCheckedAuth && !isAuthenticated) {
-      window.location.href = "/signin";
+      window.location.href =
+        "/signin?redirect=" +
+        encodeURIComponent(window.location.pathname + window.location.search);
       return;
     }
     if (isAuthenticated) {

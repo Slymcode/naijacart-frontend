@@ -100,13 +100,25 @@ export function Header() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => (window.location.href = "/signin")}
+                  onClick={() =>
+                    (window.location.href =
+                      "/signin?redirect=" +
+                      encodeURIComponent(
+                        window.location.pathname + window.location.search,
+                      ))
+                  }
                 >
                   Sign In
                 </Button>
                 <Button
                   size="sm"
-                  onClick={() => (window.location.href = "/signup")}
+                  onClick={() =>
+                    (window.location.href =
+                      "/signup?redirect=" +
+                      encodeURIComponent(
+                        window.location.pathname + window.location.search,
+                      ))
+                  }
                 >
                   Sign Up
                 </Button>
@@ -204,7 +216,11 @@ export function Header() {
                   variant="outline"
                   className="w-full"
                   onClick={() => {
-                    window.location.href = "/signin";
+                    window.location.href =
+                      "/signin?redirect=" +
+                      encodeURIComponent(
+                        window.location.pathname + window.location.search,
+                      );
                     setIsMenuOpen(false);
                   }}
                 >
@@ -213,7 +229,11 @@ export function Header() {
                 <Button
                   className="w-full"
                   onClick={() => {
-                    window.location.href = "/signup";
+                    window.location.href =
+                      "/signup?redirect=" +
+                      encodeURIComponent(
+                        window.location.pathname + window.location.search,
+                      );
                     setIsMenuOpen(false);
                   }}
                 >

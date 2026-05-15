@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +14,8 @@ export default function SignUp() {
     lastName: "",
     phone: "",
   });
+  const [searchParams] = useSearchParams();
+  const redirectUrl = searchParams.get("redirect") || "/";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,7 +134,7 @@ export default function SignUp() {
             <p className="text-slate-600">
               Already have an account?{" "}
               <a
-                href="/signin"
+                href={`/signin?redirect=${encodeURIComponent(redirectUrl)}`}
                 className="text-blue-600 hover:text-blue-700 font-medium hover:underline transition-colors"
               >
                 Sign in here

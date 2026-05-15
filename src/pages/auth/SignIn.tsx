@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,14 +7,16 @@ import { useAuthStore } from "@/stores/auth";
 import { apiClient } from "@/api/client";
 
 export default function SignIn() {
+  const [searchParams] = useSearchParams();
   const { signIn, isLoading, error } = useAuthStore();
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const redirectUrl = searchParams.get("redirect") || "/";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await signIn(formData.email, formData.password);
-      window.location.href = "/";
+      window.location.href = redirectUrl;
     } catch (err) {
       console.error(err);
     }
@@ -77,7 +80,7 @@ export default function SignIn() {
             <p className="text-slate-600">
               Don't have an account?{" "}
               <a
-                href="/signup"
+                href={`/signup?redirect=${encodeURIComponent(redirectUrl)}`}
                 className="text-blue-600 hover:text-blue-700 font-medium hover:underline transition-colors"
               >
                 Create one here

@@ -39,7 +39,13 @@ export default function Cart() {
               Please sign in to view your shopping cart
             </p>
             <Button
-              onClick={() => (window.location.href = "/signin")}
+              onClick={() =>
+                (window.location.href =
+                  "/signin?redirect=" +
+                  encodeURIComponent(
+                    window.location.pathname + window.location.search,
+                  ))
+              }
               className="w-full"
             >
               Sign In
@@ -74,9 +80,8 @@ export default function Cart() {
     );
   }
 
-  const shippingFee = 5000;
-  const tax = subtotal * 0.1;
-  const total = subtotal + shippingFee + tax;
+  const shippingFee = 3500;
+  const total = subtotal + shippingFee;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -183,10 +188,6 @@ export default function Cart() {
                   <span className="font-medium">
                     {formatCurrency(shippingFee)}
                   </span>
-                </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>Tax (10%)</span>
-                  <span className="font-medium">{formatCurrency(tax)}</span>
                 </div>
                 <div className="border-t border-slate-200 pt-4">
                   <div className="flex justify-between text-xl font-bold text-slate-900">

@@ -26,7 +26,9 @@ export default function AffiliateDashboard() {
     if (!hasCheckedAuth) return;
 
     if (!isAuthenticated) {
-      window.location.href = "/signin";
+      window.location.href =
+        "/signin?redirect=" +
+        encodeURIComponent(window.location.pathname + window.location.search);
       return;
     }
 

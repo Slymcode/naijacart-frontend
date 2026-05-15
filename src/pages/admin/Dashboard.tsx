@@ -107,6 +107,9 @@ export default function AdminDashboard() {
                 <tr className="border-b">
                   <th className="text-left py-2">Affiliate</th>
                   <th className="text-left py-2">Amount</th>
+                  <th className="text-left py-2">Bank</th>
+                  <th className="text-left py-2">Account</th>
+                  <th className="text-left py-2">Holder</th>
                   <th className="text-left py-2">Status</th>
                   <th className="text-left py-2">Requested</th>
                   <th className="text-left py-2">Actions</th>
@@ -121,6 +124,9 @@ export default function AdminDashboard() {
                     <td className="py-2 font-bold">
                       {formatCurrency(request.amount)}
                     </td>
+                    <td className="py-2">{request.bankName || "—"}</td>
+                    <td className="py-2">{request.accountNumber || "—"}</td>
+                    <td className="py-2">{request.accountHolder || "—"}</td>
                     <td className="py-2">
                       <span
                         className={`px-2 py-1 rounded text-xs ${
@@ -225,25 +231,32 @@ export default function AdminDashboard() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-2">Order #</th>
-                  <th className="text-left py-2">Customer</th>
-                  <th className="text-left py-2">Total</th>
-                  <th className="text-left py-2">Status</th>
-                  <th className="text-left py-2">Payment</th>
-                  <th className="text-left py-2">Date</th>
+                  <th className="text-left py-2 whitespace-nowrap">Order #</th>
+                  <th className="text-left py-2 whitespace-nowrap">Customer</th>
+                  <th className="text-left py-2 whitespace-nowrap">Shipping</th>
+                  <th className="text-left py-2 whitespace-nowrap">Total</th>
+                  <th className="text-left py-2 whitespace-nowrap">Status</th>
+                  <th className="text-left py-2 whitespace-nowrap">Payment</th>
+                  <th className="text-left py-2 whitespace-nowrap">Date</th>
                 </tr>
               </thead>
               <tbody>
                 {orders.map((order: any) => (
                   <tr key={order.id} className="border-b hover:bg-gray-50">
-                    <td className="py-2">{order.orderNumber}</td>
-                    <td className="py-2">
-                      {order.user.firstName} {order.user.lastName}
+                    <td className="py-2 whitespace-nowrap">
+                      {order.orderNumber}
                     </td>
-                    <td className="py-2 font-bold">
+                    <td className="py-2 whitespace-nowrap">
+                      {order.user?.firstName} {order.user?.lastName}
+                    </td>
+                    <td className="py-2 max-w-xs truncate">
+                      {order.shippingAddress}, {order.shippingCity}
+                      {order.shippingState ? `, ${order.shippingState}` : ""}
+                    </td>
+                    <td className="py-2 whitespace-nowrap font-bold">
                       {formatCurrency(order.total)}
                     </td>
-                    <td className="py-2">
+                    <td className="py-2 whitespace-nowrap">
                       <span
                         className={`px-2 py-1 rounded text-xs ${
                           order.status === "DELIVERED"
