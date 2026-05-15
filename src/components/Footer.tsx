@@ -59,7 +59,7 @@ export function Footer() {
               </li>
               <li>
                 <a href="/products" className="hover:text-white transition">
-                  Accessories
+                  Classics
                 </a>
               </li>
             </ul>
@@ -145,7 +145,7 @@ export function Footer() {
               >
                 support@naijacart.com
               </a>
-              or call <span className="font-semibold">+234 800 123 4567</span>.
+              or call <span className="font-semibold">+234 916 278 5798</span>.
             </p>
           </div>
 
