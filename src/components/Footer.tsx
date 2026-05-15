@@ -113,11 +113,7 @@ export function Footer() {
                   Careers
                 </a>
               </li>
-              <li>
-                <a href="/" className="hover:text-white transition">
-                  Sustainability
-                </a>
-              </li>
+
               <li>
                 <a href="/privacy" className="hover:text-white transition">
                   Privacy Policy
