@@ -31,16 +31,20 @@ export function Hero() {
               <Button
                 variant="outline"
                 size="lg"
-                className="text-white bg-neutral-950 border-white/20 hover:border-white hover:bg-slate-800"
+                className="text-white border-white/20 hover:border-white hover:bg-slate-800"
                 onClick={() => (window.location.href = "/affiliate/register")}
+                style={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
               >
-                Become Affiliate
+                Become an Affiliate
               </Button>
             </div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
-            <Card className="bg-neutral-950 border-white/20 ring-1 ring-white/20 shadow-none hover:border-white hover:bg-slate-800/90 transition-colors">
+            <Card
+              className=" border-white/20 ring-1 ring-white/20 shadow-none hover:border-white hover:bg-slate-800/90 transition-colors"
+              style={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+            >
               <CardContent className="pt-6">
                 <ShoppingCart className="mb-4 text-sky-300" size={32} />
                 <CardTitle className="text-white font-bold">
@@ -51,7 +55,10 @@ export function Hero() {
                 </p>
               </CardContent>
             </Card>
-            <Card className="bg-neutral-950 border-white/20 ring-1 ring-white/20 shadow-none hover:border-white hover:bg-slate-800/90 transition-colors">
+            <Card
+              className=" border-white/20 ring-1 ring-white/20 shadow-none hover:border-white hover:bg-slate-800/90 transition-colors"
+              style={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+            >
               <CardContent className="pt-6">
                 <Truck className="mb-4 text-sky-300" size={32} />
                 <CardTitle className="text-white font-bold">
@@ -62,7 +69,10 @@ export function Hero() {
                 </p>
               </CardContent>
             </Card>
-            <Card className="sm:col-span-2 bg-neutral-950 border-white/20 ring-1 ring-white/20 shadow-none hover:border-white hover:bg-slate-800/90 transition-colors">
+            <Card
+              className="sm:col-span-2 border-white/20 ring-1 ring-white/20 shadow-none hover:border-white hover:bg-slate-800/90 transition-colors"
+              style={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+            >
               <CardContent className="pt-6">
                 <Shield className="mb-4 text-sky-300" size={32} />
                 <CardTitle className="text-white font-bold">
