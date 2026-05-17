@@ -1,16 +1,49 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { apiClient } from "@/api/client";
 
 export function Footer() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubscribe = (event: React.FormEvent) => {
+  const validateEmail = (value: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+  const handleSubscribe = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!email) return;
-    setSubscribed(true);
-    setEmail("");
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
+      setError("Please enter your email address.");
+      setSubscribed(false);
+      return;
+    }
+
+    if (!validateEmail(trimmedEmail)) {
+      setError("Please enter a valid email address.");
+      setSubscribed(false);
+      return;
+    }
+
+    setError(null);
+    setSubmitting(true);
+
+    try {
+      await apiClient.subscribeEmail({ email: trimmedEmail });
+      setSubscribed(true);
+      setEmail("");
+    } catch (err: any) {
+      setError(
+        err?.response?.data?.message ||
+          "Unable to subscribe right now. Please try again later.",
+      );
+      setSubscribed(false);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -139,7 +172,7 @@ export function Footer() {
                 href="mailto:support@naijacart.com"
                 className="text-slate-100 underline hover:text-white"
               >
-                support@naijacart.com
+                &nbsp;support@naijacart.com&nbsp;
               </a>
               or call <span className="font-semibold">+234 916 278 5798</span>.
             </p>
@@ -154,23 +187,38 @@ export function Footer() {
             </p>
             <form
               onSubmit={handleSubscribe}
+              noValidate
               className="mt-6 flex flex-col gap-3 sm:flex-row"
             >
               <Input
                 type="email"
+                autoComplete="email"
                 placeholder="Enter your email"
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                  if (error) setError(null);
+                  if (subscribed) setSubscribed(false);
+                }}
                 className="min-w-0 flex-1 bg-slate-950 text-slate-100 placeholder:text-slate-500"
                 required
               />
-              <Button type="submit" className="w-full sm:w-auto">
-                Subscribe
+              <Button
+                type="submit"
+                className="w-full sm:w-auto"
+                disabled={submitting}
+              >
+                {submitting ? "Subscribing..." : "Subscribe"}
               </Button>
             </form>
-            {subscribed && (
-              <p className="mt-3 text-sm text-emerald-400">
-                Subscribed successfully.
+            {error && (
+              <p className="mt-3 text-sm text-rose-400" role="alert">
+                {error}
+              </p>
+            )}
+            {subscribed && !error && (
+              <p className="mt-3 text-sm text-emerald-400" role="status">
+                Thanks for subscribing! We’ll keep you updated.
               </p>
             )}
           </div>

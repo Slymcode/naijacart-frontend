@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Toast } from "@/components/Toast";
 import { useAuthStore } from "@/stores/auth";
 import { apiClient } from "@/api/client";
 
@@ -11,6 +12,10 @@ export default function AdminCreateProduct() {
   const { isAuthenticated, hasCheckedAuth, user } = useAuthStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    variant: "success" | "error";
+  } | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
@@ -85,7 +90,9 @@ export default function AdminCreateProduct() {
       };
 
       await apiClient.createProduct(payload);
-      setMessage("Product created successfully.");
+      const successMessage = "Product created successfully.";
+      setMessage(successMessage);
+      setToast({ message: successMessage, variant: "success" });
       setFormData({
         name: "",
         slug: "",
@@ -101,10 +108,11 @@ export default function AdminCreateProduct() {
         isFeatured: false,
       });
     } catch (error: any) {
-      setMessage(
+      const errorMessage =
         error.response?.data?.message ||
-          "Failed to create product. Please check your input.",
-      );
+        "Failed to create product. Please check your input.";
+      setMessage(errorMessage);
+      setToast({ message: errorMessage, variant: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -120,6 +128,13 @@ export default function AdminCreateProduct() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      {toast && (
+        <Toast
+          message={toast.message}
+          variant={toast.variant}
+          onClose={() => setToast(null)}
+        />
+      )}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <Card className="shadow-card">
           <CardHeader>

@@ -24,6 +24,7 @@ export default function ProductDetail() {
   const [reviewComment, setReviewComment] = useState("");
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewError, setReviewError] = useState<string | null>(null);
+  const [reviewSuccess, setReviewSuccess] = useState(false);
   const [canReview, setCanReview] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const { isAuthenticated, user } = useAuthStore();
@@ -142,7 +143,21 @@ export default function ProductDetail() {
 
   const handleSubmitReview = async () => {
     if (!product) return;
+
+    if (!reviewTitle.trim()) {
+      setReviewError("Please enter a title for your review.");
+      setReviewSuccess(false);
+      return;
+    }
+
+    if (!reviewComment.trim()) {
+      setReviewError("Please provide your review details.");
+      setReviewSuccess(false);
+      return;
+    }
+
     setReviewError(null);
+    setReviewSuccess(false);
     setReviewSubmitting(true);
 
     try {
@@ -155,12 +170,14 @@ export default function ProductDetail() {
       setReviewTitle("");
       setReviewComment("");
       setReviewRating(5);
+      setReviewSuccess(true);
       const response = await apiClient.getProductBySlug(product.slug);
       setProduct(response.data);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       setReviewError(
-        "Unable to submit review. Only delivered orders can leave a review.",
+        error?.response?.data?.message ||
+          "Unable to submit review. Only delivered orders can leave a review.",
       );
     } finally {
       setReviewSubmitting(false);
@@ -387,7 +404,7 @@ export default function ProductDetail() {
                       </div>
                     </div>
                     <p className="text-sm text-slate-500">
-                      Reviews are available for customers with delivered orders.
+                      See what customers are saying about this product.
                     </p>
                   </div>
 
@@ -448,6 +465,11 @@ export default function ProductDetail() {
                         {reviewError && (
                           <p className="text-sm text-rose-600">{reviewError}</p>
                         )}
+                        {reviewSuccess && (
+                          <p className="text-sm text-emerald-600">
+                            Review submitted successfully.
+                          </p>
+                        )}
                         <Button
                           size="lg"
                           className="w-full"
@@ -460,23 +482,22 @@ export default function ProductDetail() {
                     ) : (
                       <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
                         <p className="font-semibold">
-                          You can leave a review only after receiving this
-                          product.
+                          Read customer reviews below.
                         </p>
                         <p className="mt-2 text-slate-500">
-                          Reviews are available only for purchased products that
-                          are marked delivered.
+                          These ratings reflect the experience of people who
+                          bought this product.
                         </p>
                       </div>
                     )
                   ) : (
                     <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
                       <p className="font-semibold">
-                        Sign in to leave a review.
+                        Read customer reviews below.
                       </p>
                       <p className="mt-2 text-slate-500">
-                        Customers who received the product can share their
-                        rating.
+                        These ratings reflect the experience of people who
+                        bought this product.
                       </p>
                     </div>
                   )}

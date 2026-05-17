@@ -66,6 +66,22 @@ class APIClient {
     return this.client.post("/products", data);
   }
 
+  async updateProduct(id: string, data: any) {
+    return this.client.put(`/products/${id}`, data);
+  }
+
+  async deleteProduct(id: string) {
+    return this.client.delete(`/products/${id}`);
+  }
+
+  async getOwnedProducts() {
+    return this.client.get("/products/owner");
+  }
+
+  async getProductById(id: string) {
+    return this.client.get(`/products/id/${id}`);
+  }
+
   // Cart
   async getCart() {
     return this.client.get("/cart");
@@ -126,8 +142,28 @@ class APIClient {
     return this.client.post("/reviews", data);
   }
 
+  async updateReview(id: string, data: any) {
+    return this.client.put(`/reviews/${id}`, data);
+  }
+
+  async getUserReviews() {
+    return this.client.get("/reviews/user");
+  }
+
   async canReviewProduct(productId: string) {
     return this.client.get(`/reviews/can-review/${productId}`);
+  }
+
+  async subscribeEmail(data: any) {
+    return this.client.post("/subscribers", data);
+  }
+
+  async getSubscribers(skip = 0, take = 20) {
+    return this.client.get("/subscribers", { params: { skip, take } });
+  }
+
+  async removeSubscriber(id: string) {
+    return this.client.delete(`/subscribers/${id}`);
   }
 
   async getAdminWithdrawalRequests() {

@@ -1,11 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth, useFetch } from "@/hooks";
 import { apiClient } from "@/api/client";
-import type { Order } from "@/types";
+import type { Order, OrderItem, Review } from "@/types";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import {
   ChevronRight,
@@ -13,6 +13,7 @@ import {
   Package,
   Calendar,
   CreditCard,
+  Star,
 } from "lucide-react";
 
 export default function Orders() {
@@ -22,6 +23,21 @@ export default function Orders() {
     () => apiClient.getOrders(),
     { immediate: isAuthenticated },
   );
+  const { data: userReviews, reload: reloadUserReviews } = useFetch<Review[]>(
+    () => apiClient.getUserReviews(),
+    {
+      immediate: isAuthenticated,
+    },
+  );
+  const [reviewModalOrder, setReviewModalOrder] = useState<Order | null>(null);
+  const [reviewItemId, setReviewItemId] = useState<string | null>(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewTitle, setReviewTitle] = useState("");
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
+  const [reviewSuccess, setReviewSuccess] = useState(false);
+  const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
 
   useEffect(() => {
     if (hasCheckedAuth && !isAuthenticated) {
@@ -30,6 +46,111 @@ export default function Orders() {
         encodeURIComponent(window.location.pathname + window.location.search);
     }
   }, [hasCheckedAuth, isAuthenticated]);
+
+  const orderReviewMap = useMemo(
+    () =>
+      new Map(userReviews?.map((review) => [review.productId, review]) ?? []),
+    [userReviews],
+  );
+
+  const getExistingReviewForOrder = (order: Order) => {
+    return (
+      order.items
+        .map((item) => orderReviewMap.get(item.productId))
+        .find((review): review is Review => Boolean(review)) ?? null
+    );
+  };
+
+  const openReviewModal = (order: Order) => {
+    const existingReview = getExistingReviewForOrder(order);
+    const selectedItemId = existingReview
+      ? (order.items.find((item) => item.productId === existingReview.productId)
+          ?.id ??
+        order.items?.[0]?.id ??
+        null)
+      : (order.items?.[0]?.id ?? null);
+
+    setReviewModalOrder(order);
+    setReviewItemId(selectedItemId);
+    setReviewRating(existingReview?.rating ?? 5);
+    setReviewTitle(existingReview?.title ?? "");
+    setReviewComment(existingReview?.comment ?? "");
+    setReviewError(null);
+    setReviewSuccess(false);
+    setEditingReviewId(existingReview?.id ?? null);
+  };
+
+  const closeReviewModal = () => {
+    setReviewModalOrder(null);
+    setReviewItemId(null);
+    setReviewRating(5);
+    setReviewTitle("");
+    setReviewComment("");
+    setReviewError(null);
+    setReviewSuccess(false);
+    setEditingReviewId(null);
+  };
+
+  const handleSubmitOrderReview = async () => {
+    if (!reviewModalOrder || !reviewItemId) return;
+
+    if (!reviewTitle.trim()) {
+      setReviewError("Please enter a review title.");
+      return;
+    }
+
+    if (!reviewComment.trim()) {
+      setReviewError("Please enter your review details.");
+      return;
+    }
+
+    const item = reviewModalOrder.items.find(
+      (orderItem) => orderItem.id === reviewItemId,
+    );
+
+    if (!item) {
+      setReviewError("Please choose an item to review.");
+      return;
+    }
+
+    setReviewSubmitting(true);
+    setReviewError(null);
+    setReviewSuccess(false);
+
+    try {
+      if (editingReviewId) {
+        await apiClient.updateReview(editingReviewId, {
+          rating: reviewRating,
+          title: reviewTitle,
+          comment: reviewComment,
+        });
+      } else {
+        await apiClient.createReview({
+          productId: item.productId,
+          rating: reviewRating,
+          title: reviewTitle,
+          comment: reviewComment,
+        });
+      }
+      await reloadUserReviews();
+      setReviewSuccess(true);
+      closeReviewModal();
+    } catch (error: any) {
+      setReviewError(
+        error?.response?.data?.message ||
+          "Unable to submit review. Please try again.",
+      );
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
+
+  const selectedReviewItem = reviewModalOrder?.items.find(
+    (item) => item.id === reviewItemId,
+  );
+
+  const orderHasReview = (order: Order) =>
+    order.items.some((item) => orderReviewMap.has(item.productId));
 
   if (!hasCheckedAuth) {
     return (
@@ -170,6 +291,20 @@ export default function Orders() {
                       </p>
                     </div>
                     <div className="flex items-center gap-2 text-slate-600 group-hover:text-blue-600 transition-colors">
+                      {order.paymentStatus === "COMPLETED" && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            openReviewModal(order);
+                          }}
+                        >
+                          {orderHasReview(order)
+                            ? "View comment"
+                            : "Leave a review"}
+                        </Button>
+                      )}
                       {order.status === "DELIVERED" && (
                         <Button
                           variant="secondary"
@@ -179,7 +314,7 @@ export default function Orders() {
                             navigate(`/orders/${order.id}`);
                           }}
                         >
-                          Review items
+                          View details
                         </Button>
                       )}
                       <span className="text-sm font-medium">View Details</span>
@@ -192,6 +327,136 @@ export default function Orders() {
           ))}
         </div>
       </div>
+      {reviewModalOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 px-4 py-8">
+          <div className="w-full max-w-2xl rounded-[28px] bg-white p-6 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-semibold text-slate-900">
+                  {editingReviewId ? "Edit review" : "Leave a review"}
+                </h2>
+                <p className="text-sm text-slate-500">
+                  Order #{reviewModalOrder.orderNumber} •{" "}
+                  {reviewModalOrder.items.length} item(s)
+                </p>
+                {editingReviewId && (
+                  <p className="mt-2 text-sm text-slate-500">
+                    You already submitted a review for this order. Update it
+                    below.
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={closeReviewModal}
+                className="text-slate-500 transition hover:text-slate-900"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="mt-6 space-y-4">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Product
+                </label>
+                {editingReviewId && selectedReviewItem ? (
+                  <div className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900">
+                    {selectedReviewItem.name}
+                  </div>
+                ) : (
+                  <select
+                    value={reviewItemId ?? ""}
+                    onChange={(event) => setReviewItemId(event.target.value)}
+                    className="w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  >
+                    {reviewModalOrder.items.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                <p className="mb-2 text-sm font-medium text-slate-700">
+                  Rating
+                </p>
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => setReviewRating(index + 1)}
+                      className="rounded-full p-1 transition hover:bg-slate-200"
+                    >
+                      <Star
+                        size={24}
+                        className={
+                          index < reviewRating
+                            ? "text-yellow-400"
+                            : "text-slate-300"
+                        }
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Review title
+                </label>
+                <input
+                  type="text"
+                  value={reviewTitle}
+                  onChange={(event) => setReviewTitle(event.target.value)}
+                  placeholder="Short summary of your experience"
+                  className="w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Review comment
+                </label>
+                <textarea
+                  value={reviewComment}
+                  onChange={(event) => setReviewComment(event.target.value)}
+                  rows={4}
+                  className="w-full resize-none rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  placeholder="Tell others what you liked or what could be improved"
+                />
+              </div>
+
+              {reviewError && (
+                <p className="text-sm text-rose-600">{reviewError}</p>
+              )}
+              {reviewSuccess && (
+                <p className="text-sm text-emerald-600">
+                  Review submitted successfully.
+                </p>
+              )}
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+                <Button variant="secondary" onClick={closeReviewModal}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSubmitOrderReview}
+                  disabled={reviewSubmitting}
+                >
+                  {reviewSubmitting
+                    ? editingReviewId
+                      ? "Updating..."
+                      : "Submitting..."
+                    : editingReviewId
+                      ? "Update Review"
+                      : "Submit Review"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
