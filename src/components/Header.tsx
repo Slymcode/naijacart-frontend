@@ -33,7 +33,7 @@ export function Header() {
               NaijaCart
             </a>
             <span className="hidden text-sm text-slate-500 md:inline">
-              Modern affiliate commerce
+              Modern online shop
             </span>
           </div>
 

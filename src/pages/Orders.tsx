@@ -127,7 +127,7 @@ export default function Orders() {
               className="shadow-card hover:shadow-soft transition-all cursor-pointer group"
               onClick={() => (window.location.href = `/orders/${order.id}`)}
             >
-              <CardContent className="p-6">
+              <CardContent className="px-6 pt-6 pb-6">
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                   <div className="flex-1">
                     <div className="flex items-start gap-4 mb-4">

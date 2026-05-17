@@ -176,10 +176,10 @@ export default function ProductDetail() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: "easeOut" }}
-      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
+      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 overflow-x-hidden"
     >
-      <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-        <Card className="overflow-hidden">
+      <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] min-w-0">
+        <Card className="overflow-hidden min-w-0">
           <motion.div
             className="relative overflow-hidden bg-slate-100"
             whileHover={{ scale: 1.01 }}
@@ -221,7 +221,7 @@ export default function ProductDetail() {
           </CardContent>
         </Card>
 
-        <div className="space-y-6">
+        <div className="space-y-6 min-w-0">
           <div className="space-y-3 rounded-[28px] border border-slate-200 bg-white p-8 shadow-card">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
@@ -295,9 +295,10 @@ export default function ProductDetail() {
 
           {isAuthenticated &&
             user?.role === "AFFILIATE" &&
+            product.stock > 0 &&
             product.commissionPercentage !== undefined && (
               <Card className="rounded-[28px] border-sky-200 bg-sky-50 shadow-none">
-                <CardContent>
+                <CardContent className="pt-4">
                   <div className="space-y-4">
                     <div>
                       <p className="text-sm font-semibold text-slate-700">

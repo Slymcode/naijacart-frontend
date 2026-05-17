@@ -108,7 +108,7 @@ export default function OrderDetail() {
               order.items.map((item: OrderItem) => (
                 <div
                   key={item.id}
-                  className="flex justify-between items-center pb-4 border-b last:border-b-0"
+                  className="flex justify-between items-center py-4 border-b last:border-b-0"
                 >
                   <div>
                     <p className="font-semibold">{item.name}</p>

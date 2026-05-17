@@ -10,10 +10,10 @@ export function Hero() {
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
           <div className="max-w-2xl">
             <p className="text-sm uppercase tracking-[0.28em] text-sky-300/80 mb-4">
-              Premium Watch Boutique
+              Premium Boutique
             </p>
             <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
-              Premium wristwatches with fast delivery and affiliate rewards.
+              Premium products with fast delivery and affiliate rewards.
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-8 text-slate-200">
               Discover elegant timepieces, drive referrals, and earn commission
