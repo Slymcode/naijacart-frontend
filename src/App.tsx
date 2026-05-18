@@ -24,6 +24,14 @@ import AffiliateRegister from "@/pages/affiliate/Register";
 import AffiliateDashboard from "@/pages/affiliate/Dashboard";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminCreateProduct from "@/pages/admin/CreateProduct";
+import AddAddress from "@/pages/AddAddress";
+import About from "@/pages/About";
+import AffiliateInfo from "@/pages/AffiliateInfo";
+import HelpCenter from "@/pages/HelpCenter";
+import Privacy from "@/pages/Privacy";
+import Returns from "@/pages/Returns";
+import ShippingInfo from "@/pages/ShippingInfo";
+import Terms from "@/pages/Terms";
 import "./App.css";
 import PaymentCallback from "./pages/PaymentCallback";
 
@@ -67,8 +75,16 @@ function App() {
             <Route path="/orders" element={<Orders />} />
             <Route path="/orders/:id" element={<OrderDetail />} />
             <Route path="/affiliate/register" element={<AffiliateRegister />} />
+            <Route path="/affiliate" element={<AffiliateInfo />} />
             <Route path="/affiliate/*" element={<AffiliateDashboard />} />
+            <Route path="/help" element={<HelpCenter />} />
+            <Route path="/shipping" element={<ShippingInfo />} />
+            <Route path="/returns" element={<Returns />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
             <Route path="/payment/callback" element={<PaymentCallback />} />
+            <Route path="/profile/add-address" element={<AddAddress />} />
             <Route
               path="/admin/create-product"
               element={<AdminCreateProduct />}

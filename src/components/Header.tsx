@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/auth";
 import { useCartStore } from "@/stores/cart";
 import { Menu, X, User, ShoppingBag, BarChart3 } from "lucide-react";
+import logo from "@/img/logo.png";
 
 export function Header() {
   const { isAuthenticated, user, logout } = useAuthStore();
@@ -22,22 +23,16 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-xl shadow-sm">
+    <header className="sticky top-0 z-50 border-b border-slate-200 bg-slate-900 backdrop-blur-xl shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <a
-              href="/"
-              className="text-xl font-semibold tracking-tight text-slate-900"
-            >
-              NaijaCart
+            <a href="/" className="flex items-center gap-3">
+              <img src={logo} alt="NaijaCart" className=" h-14 w-auto" />
             </a>
-            <span className="hidden text-sm text-slate-500 md:inline">
-              Modern online shop
-            </span>
           </div>
 
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-white">
             <a href="/" className="transition hover:text-slate-900">
               Home
             </a>

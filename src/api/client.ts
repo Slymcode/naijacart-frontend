@@ -210,6 +210,14 @@ class APIClient {
   async addAddress(data: any) {
     return this.client.post("/users/addresses", data);
   }
+
+  async updateAddress(id: string, data: any) {
+    return this.client.put(`/users/addresses/${id}`, data);
+  }
+
+  async deleteAddress(id: string) {
+    return this.client.delete(`/users/addresses/${id}`);
+  }
 }
 
 export const apiClient = new APIClient();

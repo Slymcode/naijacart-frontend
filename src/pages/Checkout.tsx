@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useFetch } from "@/hooks/useFetch";
 import { useCartStore } from "@/stores/cart";
 import { useAuthStore } from "@/stores/auth";
 import { apiClient } from "@/api/client";
 import { formatCurrency } from "@/lib/utils";
+import type { Address } from "@/types";
 
 export default function Checkout() {
+  const navigate = useNavigate();
   const { items, fetchCart, isLoading, affiliateCode } = useCartStore();
   const { user, isAuthenticated, hasCheckedAuth } = useAuthStore();
   const [loading, setLoading] = useState(false);
@@ -19,11 +23,46 @@ export default function Checkout() {
     shippingZipCode: "",
   });
 
+  const {
+    data: addresses,
+    isLoading: loadingAddresses,
+    execute: loadAddresses,
+  } = useFetch<Address[]>(() => apiClient.getUserAddresses(), {
+    immediate: false,
+  });
+
+  const defaultAddress = addresses?.find((address) => address.isDefault);
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchCart();
     }
   }, [isAuthenticated, fetchCart]);
+
+  useEffect(() => {
+    if (!hasCheckedAuth) return;
+    if (isAuthenticated) {
+      loadAddresses();
+    }
+  }, [isAuthenticated, hasCheckedAuth, loadAddresses]);
+
+  useEffect(() => {
+    if (!defaultAddress) return;
+    if (
+      !formData.shippingAddress &&
+      !formData.shippingCity &&
+      !formData.shippingState &&
+      !formData.shippingZipCode
+    ) {
+      setFormData({
+        shippingAddress: defaultAddress.street,
+        shippingCity: defaultAddress.city,
+        shippingState: defaultAddress.state,
+        shippingCountry: defaultAddress.country,
+        shippingZipCode: defaultAddress.zipCode || "",
+      });
+    }
+  }, [defaultAddress]);
 
   const subtotal = items.reduce<number>(
     (sum: number, item) => sum + item.price * item.quantity,
@@ -122,6 +161,85 @@ export default function Checkout() {
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
+            <div className="mb-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">
+                    Saved shipping address
+                  </p>
+                  <p className="mt-2 text-sm text-slate-500">
+                    Use your default address or add a new one for this order.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate("/add-address")}
+                  size="sm"
+                >
+                  Add new address
+                </Button>
+              </div>
+
+              {loadingAddresses ? (
+                <p className="mt-4 text-sm text-slate-500">
+                  Loading saved addresses...
+                </p>
+              ) : defaultAddress ? (
+                <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">
+                        Default Address
+                      </p>
+                      <p className="mt-1 text-sm text-slate-500">
+                        This address will be used unless you enter a new one.
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setFormData({
+                          shippingAddress: defaultAddress.street,
+                          shippingCity: defaultAddress.city,
+                          shippingState: defaultAddress.state,
+                          shippingCountry: defaultAddress.country,
+                          shippingZipCode: defaultAddress.zipCode || "",
+                        })
+                      }
+                    >
+                      Use default
+                    </Button>
+                  </div>
+
+                  <div className="mt-4 space-y-2 text-sm text-slate-700">
+                    <p>{defaultAddress.street}</p>
+                    <p>
+                      {defaultAddress.city}, {defaultAddress.state}
+                    </p>
+                    <p>
+                      {defaultAddress.country}
+                      {defaultAddress.zipCode
+                        ? ` • ${defaultAddress.zipCode}`
+                        : ""}
+                    </p>
+                  </div>
+                </div>
+              ) : addresses && addresses.length > 0 ? (
+                <p className="mt-4 text-sm text-slate-500">
+                  You have saved addresses, but none is marked as default. Add a
+                  default address to speed up checkout.
+                </p>
+              ) : (
+                <p className="mt-4 text-sm text-slate-500">
+                  No saved addresses yet. Add a new address to make checkout
+                  faster.
+                </p>
+              )}
+            </div>
+
             <Card className="shadow-card">
               <CardHeader>
                 <CardTitle className="text-xl">Shipping Address</CardTitle>

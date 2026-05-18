@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { apiClient } from "@/api/client";
+import logo from "@/img/logo.png";
 
 export function Footer() {
   const [email, setEmail] = useState("");
@@ -51,7 +52,13 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-10 lg:grid-cols-5">
           <div className="lg:col-span-2">
-            <p className="text-3xl font-bold text-white">NaijaCart</p>
+            <div className="flex items-center">
+              <img
+                src={logo}
+                alt="NaijaCart"
+                className="h-14 w-auto object-contain drop-shadow-sm"
+              />
+            </div>
             <p className="mt-4 max-w-md text-sm leading-7 text-slate-300">
               Discover premium fashion that speaks to your style. Quality
               craftsmanship, fast delivery, and reliable affiliate rewards.
@@ -90,11 +97,6 @@ export function Footer() {
                   Women&apos;s Collection
                 </a>
               </li>
-              <li>
-                <a href="/products" className="hover:text-white transition">
-                  Classics
-                </a>
-              </li>
             </ul>
           </div>
 
@@ -114,12 +116,12 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="/" className="hover:text-white transition">
+                <a href="/shipping" className="hover:text-white transition">
                   Shipping Info
                 </a>
               </li>
               <li>
-                <a href="/" className="hover:text-white transition">
+                <a href="/returns" className="hover:text-white transition">
                   Returns
                 </a>
               </li>
@@ -141,11 +143,6 @@ export function Footer() {
                   Affiliate
                 </a>
               </li>
-              <li>
-                <a href="/careers" className="hover:text-white transition">
-                  Careers
-                </a>
-              </li>
 
               <li>
                 <a href="/privacy" className="hover:text-white transition">
@@ -154,7 +151,7 @@ export function Footer() {
               </li>
               <li>
                 <a href="/terms" className="hover:text-white transition">
-                  Terms of Service
+                  Terms and Conditions
                 </a>
               </li>
             </ul>

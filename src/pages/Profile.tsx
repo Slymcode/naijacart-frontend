@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,8 +11,10 @@ import {
   MapPin,
   Edit2,
   User as UserIcon,
-  Phone,
   Calendar,
+  MoreVertical,
+  Trash2,
+  Edit3,
 } from "lucide-react";
 
 export default function Profile() {
@@ -26,6 +28,22 @@ export default function Profile() {
     execute: loadProfile,
     isLoading: profileLoading,
   } = useFetch<User>(() => apiClient.getUserProfile(), { immediate: false });
+
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+  const [addressForm, setAddressForm] = useState({
+    street: "",
+    city: "",
+    state: "",
+    country: "",
+    zipCode: "",
+    isDefault: false,
+  });
+  const [addressActionStatus, setAddressActionStatus] = useState<{
+    message: string;
+    variant: "success" | "error";
+  } | null>(null);
+  const [addressActionLoading, setAddressActionLoading] = useState(false);
 
   const { values, handleChange, handleSubmit, isSubmitting, setValues } =
     useForm(
@@ -62,6 +80,85 @@ export default function Profile() {
       });
     }
   }, [profile]);
+
+  const handleAddressMenuToggle = (id: string) => {
+    setActiveMenuId((prev) => (prev === id ? null : id));
+  };
+
+  const handleStartEditAddress = (address: Address) => {
+    setEditingAddress(address);
+    setAddressForm({
+      street: address.street,
+      city: address.city,
+      state: address.state,
+      country: address.country,
+      zipCode: address.zipCode || "",
+      isDefault: address.isDefault,
+    });
+    setActiveMenuId(null);
+  };
+
+  const handleDeleteAddress = async (address: Address) => {
+    if (!window.confirm("Delete this address? This cannot be undone.")) {
+      return;
+    }
+
+    setAddressActionLoading(true);
+    setAddressActionStatus(null);
+
+    try {
+      await apiClient.deleteAddress(address.id);
+      await loadAddresses();
+      setAddressActionStatus({
+        message: "Address deleted successfully.",
+        variant: "success",
+      });
+    } catch (error: any) {
+      setAddressActionStatus({
+        message:
+          error?.response?.data?.message ||
+          "Unable to delete address. Please try again.",
+        variant: "error",
+      });
+    } finally {
+      setAddressActionLoading(false);
+      setActiveMenuId(null);
+    }
+  };
+
+  const handleAddressFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!editingAddress) return;
+
+    setAddressActionLoading(true);
+    setAddressActionStatus(null);
+
+    try {
+      await apiClient.updateAddress(editingAddress.id, {
+        street: addressForm.street.trim(),
+        city: addressForm.city.trim(),
+        state: addressForm.state.trim(),
+        country: addressForm.country.trim(),
+        zipCode: addressForm.zipCode.trim() || undefined,
+        isDefault: addressForm.isDefault,
+      });
+      await loadAddresses();
+      setAddressActionStatus({
+        message: "Address updated successfully.",
+        variant: "success",
+      });
+      setEditingAddress(null);
+    } catch (error: any) {
+      setAddressActionStatus({
+        message:
+          error?.response?.data?.message ||
+          "Unable to update address. Please try again.",
+        variant: "error",
+      });
+    } finally {
+      setAddressActionLoading(false);
+    }
+  };
 
   if (!hasCheckedAuth || profileLoading) {
     return (
@@ -201,7 +298,7 @@ export default function Profile() {
         </div>
 
         {/* Addresses */}
-        <div className="mt-12">
+        <div className="pt-6">
           <div className="flex justify-between items-center mb-8">
             <div>
               <h2 className="text-2xl font-bold text-slate-900">
@@ -219,15 +316,56 @@ export default function Profile() {
             </Button>
           </div>
 
+          {addressActionStatus && (
+            <div
+              className={`mb-6 rounded-2xl px-4 py-3 text-sm ${
+                addressActionStatus.variant === "success"
+                  ? "bg-emerald-100 text-emerald-900"
+                  : "bg-rose-100 text-rose-900"
+              }`}
+            >
+              {addressActionStatus.message}
+            </div>
+          )}
+
           {addresses && addresses.length > 0 ? (
             <div className="grid md:grid-cols-2 gap-6">
               {addresses.map((address) => (
                 <Card
                   key={address.id}
-                  className="shadow-card hover:shadow-soft transition-shadow"
+                  className="relative shadow-card hover:shadow-soft transition-shadow"
                 >
                   <CardContent className="p-6">
-                    <div className="flex gap-4">
+                    <div className="absolute top-4 right-4 text-right">
+                      <button
+                        type="button"
+                        onClick={() => handleAddressMenuToggle(address.id)}
+                        className="rounded-full p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white"
+                      >
+                        <MoreVertical className="w-5 h-5" />
+                      </button>
+                      {activeMenuId === address.id && (
+                        <div className="absolute right-0 z-20 mt-2 w-44 overflow-hidden rounded-2xl border border-slate-700 bg-slate-950 shadow-xl">
+                          <button
+                            type="button"
+                            onClick={() => handleStartEditAddress(address)}
+                            className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-slate-100 transition hover:bg-slate-900"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteAddress(address)}
+                            className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-slate-100 transition hover:bg-slate-900"
+                          >
+                            <Trash2 className="w-4 h-4 text-rose-400" />
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-4 pt-4">
                       <div className="flex-shrink-0">
                         <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
                           <MapPin className="w-5 h-5 text-blue-600" />
@@ -276,6 +414,159 @@ export default function Profile() {
             </Card>
           )}
         </div>
+
+        {editingAddress && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4">
+            <div className="w-full max-w-2xl overflow-hidden rounded-[28px] bg-white shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
+                <div>
+                  <h3 className="text-xl font-semibold text-slate-900">
+                    Edit Address
+                  </h3>
+                  <p className="text-sm text-slate-500">
+                    Update the selected delivery address.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditingAddress(null)}
+                  className="text-slate-500 hover:text-slate-900"
+                >
+                  ×
+                </button>
+              </div>
+              <div className="p-6">
+                <form onSubmit={handleAddressFormSubmit} className="space-y-5">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Street Address
+                    </label>
+                    <Input
+                      name="street"
+                      value={addressForm.street}
+                      onChange={(e) =>
+                        setAddressForm((prev) => ({
+                          ...prev,
+                          street: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        City
+                      </label>
+                      <Input
+                        name="city"
+                        value={addressForm.city}
+                        onChange={(e) =>
+                          setAddressForm((prev) => ({
+                            ...prev,
+                            city: e.target.value,
+                          }))
+                        }
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        State / Province
+                      </label>
+                      <Input
+                        name="state"
+                        value={addressForm.state}
+                        onChange={(e) =>
+                          setAddressForm((prev) => ({
+                            ...prev,
+                            state: e.target.value,
+                          }))
+                        }
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Country
+                      </label>
+                      <Input
+                        name="country"
+                        value={addressForm.country}
+                        onChange={(e) =>
+                          setAddressForm((prev) => ({
+                            ...prev,
+                            country: e.target.value,
+                          }))
+                        }
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        ZIP / Postal Code
+                      </label>
+                      <Input
+                        name="zipCode"
+                        value={addressForm.zipCode}
+                        onChange={(e) =>
+                          setAddressForm((prev) => ({
+                            ...prev,
+                            zipCode: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <input
+                      id="isDefaultEdit"
+                      name="isDefault"
+                      type="checkbox"
+                      checked={addressForm.isDefault}
+                      onChange={(e) =>
+                        setAddressForm((prev) => ({
+                          ...prev,
+                          isDefault: e.target.checked,
+                        }))
+                      }
+                      className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <label
+                      htmlFor="isDefaultEdit"
+                      className="text-sm text-slate-700"
+                    >
+                      Set as default address
+                    </label>
+                  </div>
+
+                  <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
+                    <Button
+                      type="submit"
+                      className="w-full sm:w-auto"
+                      disabled={addressActionLoading}
+                    >
+                      {addressActionLoading ? "Updating..." : "Save Changes"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full sm:w-auto"
+                      onClick={() => setEditingAddress(null)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

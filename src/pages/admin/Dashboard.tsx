@@ -23,10 +23,16 @@ export default function AdminDashboard() {
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [productForm, setProductForm] = useState({
     name: "",
+    slug: "",
     description: "",
     price: "",
+    cost: "",
     stock: "",
     category: "",
+    comparePrice: "",
+    commissionPercentage: "",
+    images: "",
+    tags: "",
     isFeatured: false,
     isActive: true,
   });
@@ -70,10 +76,16 @@ export default function AdminDashboard() {
   const resetProductForm = () => {
     setProductForm({
       name: "",
+      slug: "",
       description: "",
       price: "",
+      cost: "",
       stock: "",
       category: "",
+      comparePrice: "",
+      commissionPercentage: "",
+      images: "",
+      tags: "",
       isFeatured: false,
       isActive: true,
     });
@@ -84,10 +96,18 @@ export default function AdminDashboard() {
     setEditingProduct(product);
     setProductForm({
       name: product.name || "",
+      slug: product.slug || "",
       description: product.description || "",
       price: String(product.price || ""),
+      cost: String(product.cost || ""),
       stock: String(product.stock || ""),
       category: product.category || "",
+      comparePrice: product.comparePrice ? String(product.comparePrice) : "",
+      commissionPercentage: product.commissionPercentage
+        ? String(product.commissionPercentage)
+        : "",
+      images: Array.isArray(product.images) ? product.images.join(", ") : "",
+      tags: Array.isArray(product.tags) ? product.tags.join(", ") : "",
       isFeatured: product.isFeatured || false,
       isActive: product.isActive !== false,
     });
@@ -99,10 +119,26 @@ export default function AdminDashboard() {
     try {
       const payload = {
         name: productForm.name.trim(),
+        slug: productForm.slug.trim(),
         description: productForm.description.trim(),
         price: Number(productForm.price),
+        cost: Number(productForm.cost),
         stock: Number(productForm.stock),
         category: productForm.category.trim(),
+        comparePrice: productForm.comparePrice
+          ? Number(productForm.comparePrice)
+          : undefined,
+        commissionPercentage: productForm.commissionPercentage
+          ? Number(productForm.commissionPercentage)
+          : undefined,
+        images: productForm.images
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean),
+        tags: productForm.tags
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean),
         isFeatured: productForm.isFeatured,
         isActive: productForm.isActive,
       };
@@ -275,7 +311,7 @@ export default function AdminDashboard() {
 
       {editingProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 px-4 py-8">
-          <div className="w-full max-w-2xl rounded-[28px] bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-2xl rounded-[28px] bg-white p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-2xl font-semibold text-slate-900">
@@ -294,19 +330,35 @@ export default function AdminDashboard() {
               </button>
             </div>
             <div className="mt-6 space-y-4">
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Product Name
-                </label>
-                <Input
-                  value={productForm.name}
-                  onChange={(e) =>
-                    setProductForm((prev) => ({
-                      ...prev,
-                      name: e.target.value,
-                    }))
-                  }
-                />
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                    Product Name
+                  </label>
+                  <Input
+                    value={productForm.name}
+                    onChange={(e) =>
+                      setProductForm((prev) => ({
+                        ...prev,
+                        name: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                    Slug
+                  </label>
+                  <Input
+                    value={productForm.slug}
+                    onChange={(e) =>
+                      setProductForm((prev) => ({
+                        ...prev,
+                        slug: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
               </div>
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">
@@ -342,6 +394,21 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
+                    Cost
+                  </label>
+                  <Input
+                    type="number"
+                    value={productForm.cost}
+                    onChange={(e) =>
+                      setProductForm((prev) => ({
+                        ...prev,
+                        cost: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-700">
                     Stock
                   </label>
                   <Input
@@ -355,6 +422,8 @@ export default function AdminDashboard() {
                     }
                   />
                 </div>
+              </div>
+              <div className="grid gap-4 md:grid-cols-3">
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
                     Category
@@ -367,6 +436,71 @@ export default function AdminDashboard() {
                         category: e.target.value,
                       }))
                     }
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                    Compare Price
+                  </label>
+                  <Input
+                    type="number"
+                    value={productForm.comparePrice}
+                    onChange={(e) =>
+                      setProductForm((prev) => ({
+                        ...prev,
+                        comparePrice: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                    Commission %
+                  </label>
+                  <Input
+                    type="number"
+                    value={productForm.commissionPercentage}
+                    onChange={(e) =>
+                      setProductForm((prev) => ({
+                        ...prev,
+                        commissionPercentage: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                    Image URLs
+                  </label>
+                  <Input
+                    value={productForm.images}
+                    onChange={(e) =>
+                      setProductForm((prev) => ({
+                        ...prev,
+                        images: e.target.value,
+                      }))
+                    }
+                    placeholder="https://... , https://..."
+                  />
+                  <p className="mt-2 text-xs text-slate-500">
+                    Separate multiple URLs with commas.
+                  </p>
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                    Tags
+                  </label>
+                  <Input
+                    value={productForm.tags}
+                    onChange={(e) =>
+                      setProductForm((prev) => ({
+                        ...prev,
+                        tags: e.target.value,
+                      }))
+                    }
+                    placeholder="sneakers, casual"
                   />
                 </div>
               </div>
@@ -400,7 +534,7 @@ export default function AdminDashboard() {
                   Active
                 </label>
               </div>
-              <div className="flex justify-end gap-3">
+              <div className="sticky bottom-0 left-0 z-10 mt-6 flex justify-end gap-3 rounded-b-[28px] border-t border-slate-200 bg-white/95 px-4 py-4 backdrop-blur">
                 <Button variant="secondary" onClick={resetProductForm}>
                   Cancel
                 </Button>
