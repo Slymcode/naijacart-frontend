@@ -33,15 +33,15 @@ export function Header() {
           </div>
 
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-white">
-            <a href="/" className="transition hover:text-slate-900">
+            <a href="/" className="transition hover:text-slate-300">
               Home
             </a>
-            <a href="/products" className="transition hover:text-slate-900">
+            <a href="/products" className="transition hover:text-slate-300">
               Shop
             </a>
             <a
               href="/cart"
-              className="relative transition hover:text-slate-900"
+              className="relative transition hover:text-slate-300"
             >
               Cart
               {cartQuantity > 0 && (
@@ -52,19 +52,19 @@ export function Header() {
             </a>
             {isAuthenticated && (
               <>
-                <a href="/orders" className="transition hover:text-slate-900">
+                <a href="/orders" className="transition hover:text-slate-300">
                   Orders
                 </a>
                 {user?.role === "AFFILIATE" && (
                   <a
                     href="/affiliate"
-                    className="transition hover:text-slate-900"
+                    className="transition hover:text-slate-300"
                   >
                     Affiliate
                   </a>
                 )}
                 {user?.role === "ADMIN" && (
-                  <a href="/admin" className="transition hover:text-slate-900">
+                  <a href="/admin" className="transition hover:text-slate-300">
                     Admin
                   </a>
                 )}
@@ -86,7 +86,7 @@ export function Header() {
                 >
                   Profile
                 </Button>
-                <Button variant="ghost" size="sm" onClick={handleLogout}>
+                <Button variant="default" size="sm" onClick={handleLogout}>
                   Logout
                 </Button>
               </>
